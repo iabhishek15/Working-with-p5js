@@ -1,13 +1,4 @@
-// Daniel Shiffman
-// http://codingtra.in
-// http://patreon.com/codingtrain
-// Part 1: https://youtu.be/aKYlikFAV4k
-// Part 2: https://youtu.be/EaZxUCWAjb0
-// Part 3: https://youtu.be/jwRT4PCT6RU
-
-// Function to delete element from the array
 function removeFromArray(arr, elt) {
-    // Could use indexOf here instead to be more efficient
     for (var i = arr.length - 1; i >= 0; i--) {
         if (arr[i] == elt) {
             arr.splice(i, 1);
@@ -15,32 +6,22 @@ function removeFromArray(arr, elt) {
     }
 }
 
-// An educated guess of how far it is between two points
 function heuristic(a, b) {
     var d = dist(a.i, a.j, b.i, b.j);
-    // var d = abs(a.i - b.i) + abs(a.j - b.j);
     return d;
 }
 
-// How many columns and rows?
 var cols = 50;
 var rows = 50;
 
-// This will be the 2D array
 var grid = new Array(cols);
 
-// Open and closed set
+
 var openSet = [];
 var closedSet = [];
-
-// Start and end
 var start;
 var end;
-
-// Width and height of each cell of grid
 var w, h;
-
-// The road taken
 var path = [];
 
 function setup() {
@@ -73,8 +54,6 @@ function setup() {
 
 function draw() {
     if (openSet.length > 0) {
-
-        // Best next option
         var winner = 0;
         for (var i = 0; i < openSet.length; i++) {
             if (openSet[i].f < openSet[winner].f) {
@@ -106,8 +85,6 @@ function draw() {
                     newPath = true;
                     openSet.push(neighbor);
                 }
-
-                // Yes, it's a better path
                 if (newPath) {
                     neighbor.h = heuristic(neighbor, end);
                     neighbor.f = neighbor.g + neighbor.h;
@@ -117,7 +94,6 @@ function draw() {
 
         }
     } else {
-        console.log('no solution');
         noLoop();
         return;
     }
@@ -149,4 +125,61 @@ function draw() {
         vertex(path[i].i * w + w / 2, path[i].j * h + h / 2);
     }
     endShape();
+}
+
+function Spot(i, j) {
+    this.i = i;
+    this.j = j;
+
+    this.f = 0;
+    this.g = 0;
+    this.h = 0;
+
+    this.neighbors = [];
+
+    this.previous = undefined;
+
+    this.wall = false;
+    if (random(1) < 0.4) {
+        this.wall = true;
+    }
+
+    this.show = function(col) {
+        if (this.wall) {
+            fill(0);
+            noStroke();
+            ellipse(this.i * w + w / 2, this.j * h + h / 2, w / 2, h / 2);
+        } else if (col) {
+            fill(col);
+            rect(this.i * w, this.j * h, w, h);
+        }
+    }
+    this.addNeighbors = function(grid) {
+        var i = this.i;
+        var j = this.j;
+        if (i < cols - 1) {
+            this.neighbors.push(grid[i + 1][j]);
+        }
+        if (i > 0) {
+            this.neighbors.push(grid[i - 1][j]);
+        }
+        if (j < rows - 1) {
+            this.neighbors.push(grid[i][j + 1]);
+        }
+        if (j > 0) {
+            this.neighbors.push(grid[i][j - 1]);
+        }
+        if (i > 0 && j > 0) {
+            this.neighbors.push(grid[i - 1][j - 1]);
+        }
+        if (i < cols - 1 && j > 0) {
+            this.neighbors.push(grid[i + 1][j - 1]);
+        }
+        if (i > 0 && j < rows - 1) {
+            this.neighbors.push(grid[i - 1][j + 1]);
+        }
+        if (i < cols - 1 && j < rows - 1) {
+            this.neighbors.push(grid[i + 1][j + 1]);
+        }
+    }
 }
